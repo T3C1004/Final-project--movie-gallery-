@@ -1,6 +1,6 @@
 // OMDB API Configuration
 const API_KEY = 'c02b70f4';
-const API_URL = 'http://www.omdbapi.com/';
+const API_URL = 'https://www.omdbapi.com/';
 
 // DOM Elements
 const searchInput = document.getElementById('searchInput');
