@@ -14,7 +14,7 @@
         </header>
 
         <div class="search-container">
-            <div class="search-box">
+            <div class="search-wrapper">
                 <input 
                     type="text" 
                     id="searchInput" 
@@ -28,6 +28,14 @@
                     </svg>
                     Search
                 </button>
+            </div>
+            <div class="sort-container" id="sortContainer" style="display: none;">
+                <label for="sortSelect">Sort by Year:</label>
+                <select id="sortSelect" class="sort-select">
+                    <option value="none">Default Order</option>
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
             </div>
         </div>
 

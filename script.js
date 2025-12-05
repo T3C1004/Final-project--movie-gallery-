@@ -2,6 +2,9 @@
 const API_KEY = 'c02b70f4';
 const API_URL = 'https://www.omdbapi.com/';
 
+// Store current movies for sorting
+let currentMovies = [];
+
 // DOM Elements
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
@@ -10,6 +13,8 @@ const loadingState = document.getElementById('loadingState');
 const errorState = document.getElementById('errorState');
 const errorMessage = document.getElementById('errorMessage');
 const noResults = document.getElementById('noResults');
+const sortSelect = document.getElementById('sortSelect');
+const sortContainer = document.getElementById('sortContainer');
 
 // Event Listeners
 searchBtn.addEventListener('click', handleSearch);
@@ -18,6 +23,7 @@ searchInput.addEventListener('keypress', (e) => {
         handleSearch();
     }
 });
+sortSelect.addEventListener('change', handleSort);
 
 // Search Handler
 function handleSearch() {
@@ -48,14 +54,44 @@ async function searchMovies(searchTerm) {
         hideLoading();
         
         if (data.Response === 'True') {
-            displayMovies(data.Search);
+            currentMovies = data.Search;
+            sortSelect.value = 'none'; // Reset sort dropdown
+            displayMovies(currentMovies);
+            sortContainer.style.display = 'flex'; // Show sort dropdown
         } else {
+            currentMovies = [];
+            sortContainer.style.display = 'none'; // Hide sort dropdown
             showNoResults();
         }
     } catch (error) {
         hideLoading();
+        currentMovies = [];
+        sortContainer.style.display = 'none';
         showError('Failed to fetch movies. Please check your connection and try again.');
         console.error('Error fetching movies:', error);
+    }
+}
+
+// Handle Sort
+function handleSort() {
+    const sortValue = sortSelect.value;
+    
+    if (sortValue === 'none') {
+        displayMovies(currentMovies);
+    } else if (sortValue === 'newest') {
+        const sorted = [...currentMovies].sort((a, b) => {
+            const yearA = parseInt(a.Year) || 0;
+            const yearB = parseInt(b.Year) || 0;
+            return yearB - yearA; // Descending (newest first)
+        });
+        displayMovies(sorted);
+    } else if (sortValue === 'oldest') {
+        const sorted = [...currentMovies].sort((a, b) => {
+            const yearA = parseInt(a.Year) || 0;
+            const yearB = parseInt(b.Year) || 0;
+            return yearA - yearB; // Ascending (oldest first)
+        });
+        displayMovies(sorted);
     }
 }
 
@@ -77,9 +113,10 @@ function createMovieCard(movie) {
     const card = document.createElement('div');
     card.className = 'movie-card';
     
+    // Show poster if available, otherwise show empty space
     const posterElement = movie.Poster && movie.Poster !== 'N/A' 
-        ? `<div class="movie-poster"><img src="${movie.Poster}" alt="${movie.Title}" onerror="this.parentElement.innerHTML='<div class=\"placeholder-poster\">🎬</div>'"></div>`
-        : `<div class="placeholder-poster">?</div>`;
+        ? `<div class="movie-poster"><img src="${movie.Poster}" alt="${movie.Title}" onerror="this.parentElement.classList.add('empty-poster')"></div>`
+        : `<div class="movie-poster empty-poster"></div>`;
     
     card.innerHTML = `
         ${posterElement}
